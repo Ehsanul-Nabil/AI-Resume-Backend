@@ -8,9 +8,11 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser()) // cookie-parser. Without it, Express cannot read or parse incoming cookies from the browser.
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true
-
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.FRONTEND_URL_PROD,
+      ],
+    credentials:true // for Cookies
 }))
 
 app.use("/api/auth",authRouter) // auth api prefix
