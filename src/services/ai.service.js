@@ -230,15 +230,51 @@ async function generateInterviewReport({
 
 
 
-async function generatePdfFromHtml(htmlContent) {
+// async function generatePdfFromHtml(htmlContent) {
 
-// Inside your PDF generation function:
-const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath,
-    headless: chromium.headless,
-});
+// // Inside your PDF generation function:
+// const browser = await puppeteer.launch({
+//     args: chromium.args,
+//     defaultViewport: chromium.defaultViewport,
+//     executablePath: await chromium.executablePath,
+//     headless: chromium.headless,
+// });
+
+
+
+async function generatePdfFromHtml(htmlContent) {
+    let browser;
+    try {
+        const isProduction = process.env.NODE_ENV === "production";
+
+        browser = await puppeteer.launch({
+            args: isProduction ? chromium.args : [],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: isProduction 
+                ? await chromium.executablePath() // Note: executablePath() with parentheses is correct for current @sparticuz/chromium versions
+                : process.env.LOCAL_CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Update this path if your local machine stores Chrome elsewhere
+            headless: true,
+        });
+
+        const page = await browser.newPage();
+        await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            printBackground: true,
+        });
+
+        await browser.close();
+        return pdfBuffer;
+
+    } catch (error) {
+        if (browser) {
+            await browser.close();
+        }
+        console.error("Error generating PDF:", error);
+        throw error;
+    }
+}
 
     try {
         const page = await browser.newPage();
