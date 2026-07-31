@@ -1,7 +1,8 @@
 const { GoogleGenAI, Type } = require("@google/genai");
 const {z} = require("zod")
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer");
+
+
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GEMINI_API_KEY
@@ -208,7 +209,7 @@ async function generateInterviewReport({
     }
 }
 
-
+//Orginal generatePdfromHtml
 // async function generatePdfFromHtml(htmlContent) {
 //     const browser = await puppeteer.launch()
 //     const page = await browser.newPage();
@@ -265,41 +266,45 @@ async function generateInterviewReport({
 
 
 
-
 async function generatePdfFromHtml(htmlContent) {
     let browser;
-    try {
-        // Safely resolve the executable path whether it's a function or property
-        let executablePath;
-        if (typeof chromium.executablePath === "function") {
-            executablePath = await chromium.executablePath();
-        } else {
-            executablePath = await chromium.executablePath;
-        }
 
+    try {
         browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: executablePath,
-            headless: chromium.headless,
+            headless: true,
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+            ],
         });
 
         const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-        
+
+        await page.setContent(htmlContent, {
+            waitUntil: "networkidle0",
+        });
+
         const pdfBuffer = await page.pdf({
             format: "A4",
             printBackground: true,
+            margin: {
+                top: "20mm",
+                bottom: "20mm",
+                left: "15mm",
+                right: "15mm",
+            },
         });
 
         await browser.close();
+
         return pdfBuffer;
 
     } catch (error) {
         if (browser) {
             await browser.close();
         }
-        console.error("Error generating PDF:", error);
+
+        console.error("PDF Generation Error:", error);
         throw error;
     }
 }
