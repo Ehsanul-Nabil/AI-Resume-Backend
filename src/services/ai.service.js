@@ -236,23 +236,43 @@ async function generateInterviewReport({
 // const browser = await puppeteer.launch({
 //     args: chromium.args,
 //     defaultViewport: chromium.defaultViewport,
-//     executablePath: await chromium.executablePath,
+//     executablePath: await chromium.executablePath(),
 //     headless: chromium.headless,
 // });
+
+//     try {
+//         const page = await browser.newPage();
+
+//         await page.setContent(htmlContent, {
+//             waitUntil: "networkidle0"
+//         });
+
+//         const pdfBuffer = await page.pdf({
+//             format: "A4",
+//             margin: {
+//                 top: "20mm",
+//                 bottom: "20mm",
+//                 left: "15mm",
+//                 right: "15mm"
+//             }
+//         });
+
+//         return pdfBuffer;
+//     } finally {
+//         await browser.close();
+//     }
+// }
+
 
 
 
 async function generatePdfFromHtml(htmlContent) {
     let browser;
     try {
-        const isProduction = process.env.NODE_ENV === "production";
-
         browser = await puppeteer.launch({
-            args: isProduction ? chromium.args : [],
+            args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: isProduction 
-                ? await chromium.executablePath() // Note: executablePath() with parentheses is correct for current @sparticuz/chromium versions
-                : process.env.LOCAL_CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Update this path if your local machine stores Chrome elsewhere
+            executablePath: await chromium.executablePath(),
             headless: true,
         });
 
@@ -276,28 +296,7 @@ async function generatePdfFromHtml(htmlContent) {
     }
 }
 
-    try {
-        const page = await browser.newPage();
 
-        await page.setContent(htmlContent, {
-            waitUntil: "networkidle0"
-        });
-
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            margin: {
-                top: "20mm",
-                bottom: "20mm",
-                left: "15mm",
-                right: "15mm"
-            }
-        });
-
-        return pdfBuffer;
-    } finally {
-        await browser.close();
-    }
-}
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
