@@ -269,11 +269,19 @@ async function generateInterviewReport({
 async function generatePdfFromHtml(htmlContent) {
     let browser;
     try {
+        // Safely resolve the executable path whether it's a function or property
+        let executablePath;
+        if (typeof chromium.executablePath === "function") {
+            executablePath = await chromium.executablePath();
+        } else {
+            executablePath = await chromium.executablePath;
+        }
+
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: true,
+            executablePath: executablePath,
+            headless: chromium.headless,
         });
 
         const page = await browser.newPage();
