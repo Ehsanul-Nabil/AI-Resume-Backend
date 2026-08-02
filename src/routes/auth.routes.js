@@ -24,7 +24,7 @@ authRouter.get("/google/callback",passport.authenticate("google",{session:false}
 
             const isProduction = process.env.NODE_ENV === "production";
             // Automatically pick the frontend URL based on environment
-            const frontendURL = process.env.FRONTEND_URL || (isProduction ? process.env.FRONTEND_URL_PROD : process.env.FRONTEND_URL);
+            const frontendURL = (isProduction ? process.env.FRONTEND_URL_PROD : process.env.FRONTEND_URL);
 
             // res.redirect(`${process.env.FRONTEND_URL}/auth-success?token=${token}`)
                         // Save JWT in cookie
