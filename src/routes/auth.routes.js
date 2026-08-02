@@ -21,6 +21,11 @@ authRouter.get("/google/callback",passport.authenticate("google",{session:false}
                 process.env.JWT_SECRET,
                 {expiresIn:"1d"}
             )
+
+            const isProduction = process.env.NODE_ENV === "production";
+            // Automatically pick the frontend URL based on environment
+            const frontendURL = process.env.FRONTEND_URL || (isProduction ? process.env.FRONTEND_URL_PROD : process.env.FRONTEND_URL);
+
             // res.redirect(`${process.env.FRONTEND_URL}/auth-success?token=${token}`)
                         // Save JWT in cookie
             res.cookie("token", token, {
@@ -31,7 +36,7 @@ authRouter.get("/google/callback",passport.authenticate("google",{session:false}
             });
 
             // Redirect to frontend
-            res.redirect(process.env.FRONTEND_URL);
+            res.redirect(frontendURL);
 
         }
         catch{
