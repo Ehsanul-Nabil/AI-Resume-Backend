@@ -13,9 +13,33 @@ const userSchema = mongoose.Schema({
     },
     password:{
         type:String,
-        required:[true,"Password is required"]
+        // required:[true,"Password is required"]
+    },
+    googleId: { type: String},
+    isGoogle:{
+          type:Boolean,
+          default:false
+    },
+    avatar:{
+        type:String,
+        default: ""
+    },
+    role: {
+        type: String,
+        default: "user" 
+    },
+    address:{
+        type:String,
+        default:"Not Set"
+    },
+    phone:{
+        type:String,
+        default:"Not Set"
     }
-})
+
+
+},{ timestamps: true }
+)
 
 const userModel = mongoose.model("users",userSchema) // user collection
 

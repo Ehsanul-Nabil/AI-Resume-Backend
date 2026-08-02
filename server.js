@@ -4,7 +4,7 @@ const connectToDB = require("./src/config/database")
 const invokeGeminiAi = require("./src/services/ai.service")
 const getInterviewData = require("./src/services/temp")
 const generateInterviewReport = require("./src/services/ai.service")
-
+require("./src/config/passport")
 connectToDB()
 // invokeGeminiAi()
  const prompt = getInterviewData()

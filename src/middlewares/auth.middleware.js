@@ -22,6 +22,7 @@ const authUser = async(req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const user = decoded
         req.user = user
+        // console.log("From AuthMiddleWare")
         return next()
     } catch (err) {
         return res.status(401).json({

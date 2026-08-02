@@ -200,7 +200,7 @@ async function generateInterviewReport({
                 responseSchema: interviewReportSchema,
             }
         })
-        console.log(JSON.parse(response.text))
+        // console.log("Generate By AI : ",JSON.parse(response.text))
         return JSON.parse(response.text)
 
     } catch (error) {
@@ -209,25 +209,25 @@ async function generateInterviewReport({
     }
 }
 
-//Orginal generatePdfromHtml
-// async function generatePdfFromHtml(htmlContent) {
-//     const browser = await puppeteer.launch()
-//     const page = await browser.newPage();
-//     await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+// Orginal generatePdfromHtml
+async function generatePdfFromHtml(htmlContent) {
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
 
-//     const pdfBuffer = await page.pdf({
-//         format: "A4", margin: {
-//             top: "20mm",
-//             bottom: "20mm",
-//             left: "15mm",
-//             right: "15mm"
-//         }
-//     })
+    const pdfBuffer = await page.pdf({
+        format: "A4", margin: {
+            top: "20mm",
+            bottom: "20mm",
+            left: "15mm",
+            right: "15mm"
+        }
+    })
 
-//     await browser.close()
+    await browser.close()
 
-//     return pdfBuffer
-// }
+    return pdfBuffer
+}
 
 
 
@@ -311,27 +311,27 @@ async function generateInterviewReport({
 
 
 
-async function generatePdfFromHtml() {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-        ],
-    });
+// async function generatePdfFromHtml() {
+//     const browser = await puppeteer.launch({
+//         headless: true,
+//         args: [
+//             "--no-sandbox",
+//             "--disable-setuid-sandbox",
+//         ],
+//     });
 
-    const page = await browser.newPage();
+//     const page = await browser.newPage();
 
-    await page.setContent("<h1>Hello Render</h1>");
+//     await page.setContent("<h1>Hello Render</h1>");
 
-    const pdf = await page.pdf({
-        format: "A4",
-    });
+//     const pdf = await page.pdf({
+//         format: "A4",
+//     });
 
-    await browser.close();
+//     await browser.close();
 
-    return pdf;
-}
+//     return pdf;
+// }
 
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
@@ -340,17 +340,17 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     //     html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
     // })
 
-const resumePdfSchema = {
-  type: Type.OBJECT,
-  properties: {
-    html: {
-      type: Type.STRING,
-      description:
-        "The complete HTML content of the resume that can be converted to PDF using Puppeteer.",
-    },
-  },
-  required: ["html"],
-};
+    const resumePdfSchema = {
+      type: Type.OBJECT,
+      properties: {
+        html: {
+          type: Type.STRING,
+          description:
+            "The complete HTML content of the resume that can be converted to PDF using Puppeteer.",
+        },
+      },
+      required: ["html"],
+    };
 
     const prompt = `Generate resume for a candidate with the following details:
                         Resume: ${resume}
