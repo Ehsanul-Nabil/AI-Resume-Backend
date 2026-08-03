@@ -88,7 +88,7 @@ const user = await userModel.create({
 });
 
 const token = jwt.sign(
-    { _id: user._id, username: user.username },
+    { id: user._id, username: user.username },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
 );
@@ -135,7 +135,7 @@ if (!isPasswordValid) {
 }
 
 const token = jwt.sign(
-    {_id:user._id,username:user.username},
+    {id:user._id,username:user.username},
     process.env.JWT_SECRET,
     {expiresIn:"1d"}
 )
@@ -162,6 +162,37 @@ return res.status(200).json({
     }
 })
 }
+
+const googleAuthController= async (req,res)=>{
+        try{
+            const token = jwt.sign(
+                {id:req.user.id, username:req.user.username},
+                process.env.JWT_SECRET,
+                {expiresIn:"1d"}
+            )
+        //   console.log("Inside the GoogleAuthController")
+            const isProduction = process.env.NODE_ENV === "production";
+            const frontendURL = (isProduction ? process.env.FRONTEND_URL_PROD : process.env.FRONTEND_URL);
+
+            // res.redirect(`${process.env.FRONTEND_URL}/auth-success?token=${token}`)
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 24 * 60 * 60 * 1000, // 1 day
+            });
+            console.log(frontendURL)
+
+            // Redirect to frontend
+            res.redirect(frontendURL);
+
+        }
+        catch{
+console.error("Google login error",error)
+res.redirect(`${process.env.FRONTEND_URL}/login?error=google_failed`)
+        }
+    }
+
 
 
 /**
@@ -205,7 +236,8 @@ const logoutUserController = async(req,res)=>{
  * @access private
  */
 async function getMeController(req, res) {
-    const user = await userModel.findById(req.user._id);
+    console.log("requesi=tijjkfcjkdjfk id ",req.user._id)
+    const user = await userModel.findById(req.user.id);
 
     if (!user) {
         return res.status(404).json({
@@ -235,7 +267,7 @@ async function getMeController(req, res) {
  */
 const updateUserController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const { phone, address } = req.body;
 
         // Build an update object with only allowed fields
@@ -286,6 +318,7 @@ module.exports={
     loginUserController,
     logoutUserController,
     getMeController,
-    updateUserController
+    updateUserController,
+    googleAuthController
 
 }
