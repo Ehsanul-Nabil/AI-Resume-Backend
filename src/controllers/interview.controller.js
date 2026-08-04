@@ -6,43 +6,43 @@ const interviewReportModel = require("../models/interviewReport.model")
  * @description Controller to generate interview report based on user self description, resume and job description.
  */
 
-async function generateInterViewReportController(req, res) {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ message: "Resume file is required." });
-        }
+// async function generateInterViewReportController(req, res) {
+//     try {
+//         if (!req.file) {
+//             return res.status(400).json({ message: "Resume file is required." });
+//         }
 
-        const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText();
+//         const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText();
         
-        const { selfDescription, jobDescription } = req.body;
+//         const { selfDescription, jobDescription } = req.body;
      
-        console.log("resumeContent : ", resumeContent);
-        const interViewReportByAi = await generateInterviewReport({
-            resume: resumeContent.text,
-            selfDescription,
-            jobDescription
-        });
+//         console.log("resumeContent : ", resumeContent);
+//         const interViewReportByAi = await generateInterviewReport({
+//             resume: resumeContent.text,
+//             selfDescription,
+//             jobDescription
+//         });
 
-        const interviewReport = await interviewReportModel.create({
-            user: req.user.id,
-            resume: resumeContent.text,
-            selfDescription,
-            jobDescription,
-            ...interViewReportByAi
-        });
+//         const interviewReport = await interviewReportModel.create({
+//             user: req.user.id,
+//             resume: resumeContent.text,
+//             selfDescription,
+//             jobDescription,
+//             ...interViewReportByAi
+//         });
 
-        return res.status(201).json({
-            message: "Interview report generated successfully.",
-            interviewReport
-        });
-    } catch (error) {
-        console.error("Error generating interview report:", error);
-        return res.status(500).json({ 
-            message: "Internal server error while generating interview report.", 
-            error: error.message 
-        });
-    }
-}
+//         return res.status(201).json({
+//             message: "Interview report generated successfully.",
+//             interviewReport
+//         });
+//     } catch (error) {
+//         console.error("Error generating interview report:", error);
+//         return res.status(500).json({ 
+//             message: "Internal server error while generating interview report.", 
+//             error: error.message 
+//         });
+//     }
+// }
 
 
 // async function generateInterViewReportController(req, res) {
@@ -72,6 +72,51 @@ async function generateInterViewReportController(req, res) {
 //     })
 
 // }
+async function generateInterViewReportController(req, res) {
+    try {
+        const { selfDescription, jobDescription } = req.body;
+        // Validation: Job description is strictly required
+        if (!jobDescription || !jobDescription.trim()) {
+            return res.status(400).json({ message: "Job description is required." });
+        }
+        // Validation: Either a resume file or self description must be provided
+        const hasResume = !!req.file;
+        const hasSelfDescription = selfDescription && selfDescription.trim().length > 0;
+        if (!hasResume && !hasSelfDescription) {
+            return res.status(400).json({ 
+                message: "Either a resume file or a self-description is required along with the job description." 
+            });
+        }
+        let resumeText = "";
+        if (hasResume) {
+            const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText();
+            resumeText = resumeContent.text;
+            // console.log("resumeContent : ", resumeContent);
+        }
+        const interViewReportByAi = await generateInterviewReport({
+            resume: resumeText,
+            selfDescription,
+            jobDescription
+        });
+        const interviewReport = await interviewReportModel.create({
+            user: req.user.id,
+            resume: resumeText,
+            selfDescription,
+            jobDescription,
+            ...interViewReportByAi
+        });
+        return res.status(201).json({
+            message: "Interview report generated successfully.",
+            interviewReport
+        });
+    } catch (error) {
+        console.error("Error generating interview report:", error);
+        return res.status(500).json({ 
+            message: "Internal server error while generating interview report.", 
+            error: error.message 
+        });
+    }
+}
 
 
 /**
@@ -98,7 +143,7 @@ const getInterviewReportByIdController = async (req, res) => {
  * @description Controller to get all interview reports of logged in user.
  */
 async function getAllInterviewReportsController(req, res) {
-    console.log("From getallinterviewreport : ",req.user._id)
+    // console.log("From getallinterviewreport : ",req.user._id)
     const interviewReports = await interviewReportModel.find({ user: req.user.id }).sort({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
 
     res.status(200).json({

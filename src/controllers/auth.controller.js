@@ -181,7 +181,7 @@ const googleAuthController= async (req,res)=>{
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 maxAge: 24 * 60 * 60 * 1000, // 1 day
             });
-            console.log(frontendURL)
+            // console.log(frontendURL)
 
             // Redirect to frontend
             res.redirect(frontendURL);
@@ -236,7 +236,7 @@ const logoutUserController = async(req,res)=>{
  * @access private
  */
 async function getMeController(req, res) {
-    console.log("requesi=tijjkfcjkdjfk id ",req.user._id)
+    // console.log("requesi=tijjkfcjkdjfk id ",req.user._id)
     const user = await userModel.findById(req.user.id);
 
     if (!user) {
